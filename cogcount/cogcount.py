@@ -23,12 +23,13 @@ SOFTWARE.
 """
 
 import discord
+import kuroutils
 from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.commands.converter import CogConverter
 from collections import defaultdict
 
-class CogCount(commands.Cog):
+class CogCount(kuroutils.Cog):
     """Count [botname]'s cogs, commands, servers, and users."""
 
     __author__ = ["Kuro, modified by Rosie"]
