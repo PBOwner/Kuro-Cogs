@@ -32,8 +32,8 @@ from collections import defaultdict
 class CogCount(kuroutils.Cog):
     """Count [botname]'s cogs, commands, servers, and users."""
 
-    __author__ = ["Kuro"]
-    __version__ = "0.0.2"
+    __author__ = ["Kuro, modified by Rosie"]
+    __version__ = "0.0.3"
 
     def __init__(self, bot: Red):
         super().__init__(bot)
@@ -65,9 +65,6 @@ class CogCount(kuroutils.Cog):
             f"`Unloaded :` **{unloaded}** Cogs.\n"
             f"`Total    :` **{total}** Cogs."
         )
-        if not await ctx.embed_requested():
-            await ctx.send(f"**Cogs**\n\n{description}")
-            return
         embed = discord.Embed(
             title="Cogs Count", description=description, color=await ctx.embed_color()
         )
@@ -83,28 +80,48 @@ class CogCount(kuroutils.Cog):
         """
         if cog:
             commands = len(set(cog.walk_commands()))
-            await ctx.send(f"I have `{commands}` commands in that cog.")
-            return
-        commands = len(set(self.bot.walk_commands()))
-        await ctx.send(f"I have `{commands}` commands.")
+            description = f"I have `{commands}` commands in that cog."
+        else:
+            commands = len(set(self.bot.walk_commands()))
+            description = f"I have `{commands}` commands."
+
+        embed = discord.Embed(
+            title="Commands Count", description=description, color=await ctx.embed_color()
+        )
+        await ctx.send(embed=embed)
 
     @count.command()
     async def servers(self, ctx: commands.Context):
         """See how many servers [botname] is in."""
         servers = len(self.bot.guilds)
-        await ctx.send(f"I am in `{servers}` servers.")
+        description = f"I am in `{servers}` servers."
+
+        embed = discord.Embed(
+            title="Servers Count", description=description, color=await ctx.embed_color()
+        )
+        await ctx.send(embed=embed)
 
     @count.command()
     async def users(self, ctx: commands.Context):
         """See how many unique users [botname] is serving."""
         unique_users = len(set(self.bot.get_all_members()))
-        await ctx.send(f"I am serving `{unique_users}` unique users.")
+        description = f"I am serving `{unique_users}` unique users."
+
+        embed = discord.Embed(
+            title="Users Count", description=description, color=await ctx.embed_color()
+        )
+        await ctx.send(embed=embed)
 
     @count.command()
     async def usercommands(self, ctx: commands.Context, user_id: int):
         """See how many commands a specific user has run."""
         count = self.command_usage.get(user_id, 0)
-        await ctx.send(f"User with ID `{user_id}` has run `{count}` commands.")
+        description = f"User with ID `{user_id}` has run `{count}` commands."
+
+        embed = discord.Embed(
+            title="User Commands Count", description=description, color=await ctx.embed_color()
+        )
+        await ctx.send(embed=embed)
 
 def setup(bot):
     cog = CogCount(bot)
