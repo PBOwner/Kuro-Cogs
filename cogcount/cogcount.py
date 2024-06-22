@@ -23,24 +23,23 @@ SOFTWARE.
 """
 
 import discord
-import kuroutils
 from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.commands.converter import CogConverter
 from collections import defaultdict
 
-class CogCount(kuroutils.Cog):
+class CogCount(commands.Cog):
     """Count [botname]'s cogs, commands, servers, and users."""
 
     __author__ = ["Kuro, modified by Rosie"]
     __version__ = "0.0.3"
 
     def __init__(self, bot: Red):
-        super().__init__(bot)
+        self.bot = bot
         self.command_usage = defaultdict(int)  # Track command usage per user
 
     async def initialize(self):
-        self.bot.add_listener(self.on_command_completion)
+        self.bot.add_listener(self.on_command_completion, "on_command_completion")
 
     async def on_command_completion(self, ctx: commands.Context):
         user_id = ctx.author.id
