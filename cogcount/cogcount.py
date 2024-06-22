@@ -32,7 +32,7 @@ class CogCount(commands.Cog):
     """Count [botname]'s cogs, commands, servers, and users."""
 
     __author__ = ["Kuro, modified by Rosie"]
-    __version__ = "0.0.3"
+    __version__ = "0.0.4"
 
     def __init__(self, bot: Red):
         self.bot = bot
