@@ -27,21 +27,28 @@ import kuroutils
 from redbot.core import commands
 from redbot.core.bot import Red
 from redbot.core.commands.converter import CogConverter
-
+from collections import defaultdict
 
 class CogCount(kuroutils.Cog):
-    """Count [botname]'s cogs and commands."""
+    """Count [botname]'s cogs, commands, servers, and users."""
 
     __author__ = ["Kuro"]
-    __version__ = "0.0.1"
+    __version__ = "0.0.2"
 
     def __init__(self, bot: Red):
         super().__init__(bot)
+        self.command_usage = defaultdict(int)  # Track command usage per user
 
-    @commands.is_owner()
+    async def initialize(self):
+        self.bot.add_listener(self.on_command_completion)
+
+    async def on_command_completion(self, ctx: commands.Context):
+        user_id = ctx.author.id
+        self.command_usage[user_id] += 1
+
     @commands.group()
     async def count(self, ctx: commands.Context):
-        """See how many cogs/commands [botname] has."""
+        """See various counts related to [botname]."""
         pass
 
     @commands.is_owner()
@@ -66,18 +73,40 @@ class CogCount(kuroutils.Cog):
         )
         await ctx.send(embed=embed)
 
-    @commands.is_owner()
     @count.command()
     async def commands(self, ctx: commands.Context, cog: CogConverter = None):
         """
         See how many commands [botname] has.
 
-        You can also provide a cog name to see how many commands is in that cog.
+        You can also provide a cog name to see how many commands are in that cog.
         The commands count includes subcommands.
         """
         if cog:
             commands = len(set(cog.walk_commands()))
-            await ctx.send(f"I have `{commands}` commands on that cog.")
+            await ctx.send(f"I have `{commands}` commands in that cog.")
             return
         commands = len(set(self.bot.walk_commands()))
         await ctx.send(f"I have `{commands}` commands.")
+
+    @count.command()
+    async def servers(self, ctx: commands.Context):
+        """See how many servers [botname] is in."""
+        servers = len(self.bot.guilds)
+        await ctx.send(f"I am in `{servers}` servers.")
+
+    @count.command()
+    async def users(self, ctx: commands.Context):
+        """See how many unique users [botname] is serving."""
+        unique_users = len(set(self.bot.get_all_members()))
+        await ctx.send(f"I am serving `{unique_users}` unique users.")
+
+    @count.command()
+    async def usercommands(self, ctx: commands.Context, user_id: int):
+        """See how many commands a specific user has run."""
+        count = self.command_usage.get(user_id, 0)
+        await ctx.send(f"User with ID `{user_id}` has run `{count}` commands.")
+
+def setup(bot):
+    cog = CogCount(bot)
+    bot.add_cog(cog)
+    bot.loop.create_task(cog.initialize())
